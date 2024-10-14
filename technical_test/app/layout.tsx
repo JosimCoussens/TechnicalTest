@@ -13,8 +13,6 @@ export default function RootLayout({
         <main>
           <nav>
             <Link href="/list">List</Link>
-            <Link href="/create">Create</Link>
-            <Link href="/update">Update</Link>
           </nav>
           {children}
         </main>
