@@ -4,9 +4,8 @@ import React, { useState, useEffect } from "react";
 export default function ListPage() {
   // Hooks
   const [todos, setTodos] = useState([]);
-  const [newRecordTodo, setNewRecordToDo] = useState();
-  const [newRecordCompleted, setNewRecordCompleted] = useState();
-  const [newRecordUserId, setNewRecordUserId] = useState();
+  const [newRecordTodo, setNewRecordToDo] = useState("");
+  const [newRecordCompleted, setNewRecordCompleted] = useState(0);
 
   // Fetch the list of todos only once when the component mounts
   useEffect(() => {
@@ -17,10 +16,22 @@ export default function ListPage() {
       });
   }, []); // Empty dependency array to run only on mount
 
-  const handleDelete = (id: any) => {
-    fetch(`https://dummyjson.com/todos/${id}`, {
-      method: "DELETE",
-    }).then((res) => res.json());
+  // Handle Delete Function
+  const handleDelete = async (id: any) => {
+    try {
+      const response = await fetch(`https://dummyjson.com/todos/${id}`, {
+        // await -> pause execution of an async function
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      // Update state to remove the deleted item from the UI
+      setTodos(todos.filter((todo) => todo.id !== id));
+
+      console.log("Deleted:", result);
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
   };
 
   return (
@@ -65,22 +76,18 @@ export default function ListPage() {
             backgroundColor: "lightblue",
           }}
         >
-          <textarea disabled="true" value="leave empty" />
+          <textarea disabled={true} />
           <textarea
             onChange={(e) => {
-              setNewRecordToDo({ todo: e.target.value });
+              setNewRecordToDo(e.target.value);
             }}
           />
           <textarea
             onChange={(e) => {
-              setNewRecordCompleted({ completed: e.target.value ? 1 : 0 });
+              setNewRecordCompleted(e.target.value ? 1 : 0);
             }}
           />
-          <textarea
-            onChange={(e) => {
-              setNewRecordUserId({ userId: e.target.value });
-            }}
-          />
+          <textarea disabled={true} />
           <button
             onClick={() => {
               fetch("https://dummyjson.com/todos/add", {
@@ -89,11 +96,14 @@ export default function ListPage() {
                 body: JSON.stringify({
                   todo: newRecordTodo,
                   completed: newRecordCompleted,
-                  userId: newRecordUserId,
+                  userId: 1,
                 }),
               })
                 .then((res) => res.json())
-                .then(console.log);
+                .then((newTodo) => {
+                  setTodos([...todos, newTodo]); // Add new todo to the state
+                  console.log("New todo added:", newTodo);
+                });
             }}
           >
             ADD
