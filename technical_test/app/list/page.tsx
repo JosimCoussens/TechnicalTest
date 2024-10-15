@@ -1,26 +1,26 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import "./styles.css";
 
 export default function ListPage() {
   // Hooks
   const [todos, setTodos] = useState([]);
   const [newRecordTodo, setNewRecordToDo] = useState("");
-  const [newRecordCompleted, setNewRecordCompleted] = useState(0);
+  const [newRecordCompleted, setNewRecordCompleted] = useState("");
 
-  // Fetch the list of todos only once when the component mounts
+  // useEffect is a React Hook that lets you synchronize a component with an external system.
   useEffect(() => {
     fetch("https://dummyjson.com/todos")
       .then((res) => res.json()) // Convert to JS object
       .then((data) => {
         setTodos(data.todos);
       });
-  }, []); // Empty dependency array to run only on mount
+  }, []); // component mounting: when the array is empty ([]) the useEffect will run only once
 
-  // Handle Delete Function
   const handleDelete = async (id: any) => {
     try {
+      // await -> pause execution of an async function
       const response = await fetch(`https://dummyjson.com/todos/${id}`, {
-        // await -> pause execution of an async function
         method: "DELETE",
       });
       const result = await response.json();
@@ -38,45 +38,18 @@ export default function ListPage() {
     <div>
       <h1>Todo List</h1>
       <ul>
-        {Array.isArray(todos) && todos.length > 0 ? (
-          todos.map((todo) => (
-            <div
-              key={todo.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(6, 1fr)",
-                gap: "10px",
-                marginBottom: "10px",
-                padding: "10px",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                backgroundColor: "lightgray",
-              }}
-            >
-              <textarea defaultValue={todo.id} />
-              <textarea defaultValue={todo.todo} />
-              <textarea defaultValue={todo.completed ? "true" : "false"} />
-              <textarea defaultValue={todo.userId} />
-              <button>UPDATE</button>
-              <button onClick={() => handleDelete(todo.id)}>DELETE</button>
-            </div>
-          ))
-        ) : (
-          <p>No todos available.</p>
-        )}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(6, 1fr)",
-            gap: "10px",
-            marginBottom: "10px",
-            padding: "10px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
-            backgroundColor: "lightblue",
-          }}
-        >
-          <textarea disabled={true} />
+        {todos.map((todo) => (
+          <div id="div_existingRecords" key={todo.id}>
+            <textarea defaultValue={todo.id} />
+            <textarea defaultValue={todo.todo} />
+            <textarea defaultValue={todo.completed} />
+            <textarea defaultValue={todo.userId} />
+            <button>UPDATE</button>
+            <button onClick={() => handleDelete(todo.id)}>DELETE</button>
+          </div>
+        ))}
+        <div id="div_newRecord">
+          <textarea disabled={true} defaultValue={"id: auto generated"} />
           <textarea
             onChange={(e) => {
               setNewRecordToDo(e.target.value);
@@ -84,10 +57,10 @@ export default function ListPage() {
           />
           <textarea
             onChange={(e) => {
-              setNewRecordCompleted(e.target.value ? 0 : 1);
+              setNewRecordCompleted(e.target.value);
             }}
           />
-          <textarea disabled={true} />
+          <textarea disabled={true} defaultValue={"userId: always 1"} />
           <button
             onClick={() => {
               fetch("https://dummyjson.com/todos/add", {
@@ -101,8 +74,14 @@ export default function ListPage() {
               })
                 .then((res) => res.json())
                 .then((newTodo) => {
-                  newTodo.id = todos.length + 1;
-                  setTodos([...todos, newTodo]); // Add new todo to the state
+                  // Loop over todos array to get max number of id, to create new id
+                  let maxValue = 0;
+                  for (let i = 0; i < todos.length; i++)
+                    if (parseInt(todos[i].id) > maxValue)
+                      maxValue = todos[i].id;
+
+                  newTodo.id = maxValue + 1;
+                  setTodos([...todos, newTodo]); // Makes a copy of todos and adds a new record to the array
                   console.log("New todo added:", newTodo);
                 });
             }}
