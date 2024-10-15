@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import "./styles.css";
-
 export default function ListPage() {
   // Hooks
   const [todos, setTodos] = useState([]);
