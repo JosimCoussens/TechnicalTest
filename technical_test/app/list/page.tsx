@@ -53,10 +53,10 @@ export default function ListPage() {
                 backgroundColor: "lightgray",
               }}
             >
-              <textarea id="ta_id" defaultValue={todo.id} />
-              <textarea id="ta_todo" defaultValue={todo.todo} />
-              <textarea id="ta_completed" defaultValue={todo.completed} />
-              <textarea id="ta_userid" defaultValue={todo.userId} />
+              <textarea defaultValue={todo.id} />
+              <textarea defaultValue={todo.todo} />
+              <textarea defaultValue={todo.completed ? "true" : "false"} />
+              <textarea defaultValue={todo.userId} />
               <button>UPDATE</button>
               <button onClick={() => handleDelete(todo.id)}>DELETE</button>
             </div>
@@ -84,7 +84,7 @@ export default function ListPage() {
           />
           <textarea
             onChange={(e) => {
-              setNewRecordCompleted(e.target.value ? 1 : 0);
+              setNewRecordCompleted(e.target.value ? 0 : 1);
             }}
           />
           <textarea disabled={true} />
@@ -101,6 +101,7 @@ export default function ListPage() {
               })
                 .then((res) => res.json())
                 .then((newTodo) => {
+                  newTodo.id = todos.length + 1;
                   setTodos([...todos, newTodo]); // Add new todo to the state
                   console.log("New todo added:", newTodo);
                 });
