@@ -6,6 +6,7 @@ export default function ListPage() {
   const [todos, setTodos] = useState([]);
   const [newRecordTodo, setNewRecordToDo] = useState("");
   const [newRecordCompleted, setNewRecordCompleted] = useState("");
+  const [newRecordUserId, setNewRecordUserId] = useState(1);
 
   // useEffect is a React Hook that lets you synchronize a component with an external system.
   useEffect(() => {
@@ -30,13 +31,30 @@ export default function ListPage() {
   };
 
   const handleAdd = () => {
+    // check if input is valid
+    let validInput = false;
+    for (let i = 0; i < todos.length; i++) {
+      if (
+        todos[i].userId == newRecordUserId &&
+        (newRecordCompleted == "true" || newRecordCompleted == "false")
+      ) {
+        validInput = true;
+        break;
+      }
+    }
+    // Cancel and alert if input is not valid
+    if (!validInput) {
+      alert("Cannot add record. Check user id and completed field.");
+      return;
+    }
+    // Add if input is valid
     fetch("https://dummyjson.com/todos/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         todo: newRecordTodo,
         completed: newRecordCompleted,
-        userId: 2,
+        userId: newRecordUserId,
       }),
     })
       .then((res) => res.json())
@@ -75,10 +93,14 @@ export default function ListPage() {
           />
           <textarea
             onChange={(e) => {
-              setNewRecordCompleted(e.target.value);
+              setNewRecordCompleted(e.target.value.toLowerCase());
             }}
           />
-          <textarea disabled={true} defaultValue={"userId: always 1"} />
+          <textarea
+            onChange={(e) => {
+              setNewRecordUserId(parseInt(e.target.value));
+            }}
+          />
           <button onClick={handleAdd}>ADD</button>
         </div>
       </ul>
